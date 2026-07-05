@@ -11,6 +11,82 @@ export function AppProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  const [storeSettings, setStoreSettings] = useState(null);
+  const [themeSettings, setThemeSettings] = useState(null);
+  const [headerConfig, setHeaderConfig] = useState(null);
+  const [footerConfig, setFooterConfig] = useState(null);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const s = await api.get("/settings/store").catch(() => ({ data: {
+        name: "Mangalore Store",
+        tagline: "Farm-fresh groceries, delivered daily",
+        logo: "",
+        logo_dark: "",
+        logo_mobile: "",
+        favicon: "",
+        loading_logo: "",
+        email: "hello@mangalorestore.com",
+        phone: "+91 98450 00000",
+        whatsapp: "+91 98450 00000",
+        address: "12 MG Road, Mangalore, Karnataka 575001, India",
+        google_maps: "",
+        gst_number: "29ABCDE1234F1Z5",
+        company_name: "Mangalore Commerce Pvt Ltd",
+        footer_copyright: "© 2026 Mangalore Store. All rights reserved."
+      } }));
+      setStoreSettings(s.data);
+    } catch (e) {}
+
+    try {
+      const t = await api.get("/settings/theme").catch(() => ({ data: {
+        primary: "#1B4332",
+        secondary: "#E07A5F",
+        accent: "#F4A261",
+        background: "#FDFBF7",
+        text: "#1C1917",
+        button_radius: 999,
+        card_radius: 16,
+        font_display: "Cabinet Grotesk",
+        font_body: "Satoshi",
+        dark_mode: false,
+        product_layout: "grid",
+        category_layout: "bento"
+      } }));
+      setThemeSettings(t.data);
+    } catch (e) {}
+
+    try {
+      const h = await api.get("/settings/header").catch(() => ({ data: {
+        show_search: true,
+        show_wishlist: true,
+        show_cart: true,
+        show_login: true,
+        show_language: false,
+        show_currency: false,
+        contact_number_visible: true,
+        menu_id: null,
+        announcement: {
+          enabled: true,
+          text: "Free delivery on orders over ₹499 · Same-day delivery in Mangalore",
+          link: "",
+          bg: "#1B4332",
+          fg: "#FFFFFF"
+        }
+      } }));
+      setHeaderConfig(h.data);
+    } catch (e) {}
+
+    try {
+      const f = await api.get("/settings/footer").catch(() => ({ data: {
+        description: "Farm-fresh groceries, sourced daily from local Mangalore farmers and delivered to your door in under 30 minutes.",
+        columns: [],
+        copyright: "© 2026 Mangalore Store. All rights reserved."
+      } }));
+      setFooterConfig(f.data);
+    } catch (e) {}
+  }, []);
+
   const fetchMe = useCallback(async () => {
     const t = localStorage.getItem("token");
     if (!t) { setLoadingUser(false); return; }
@@ -31,8 +107,20 @@ export function AppProvider({ children }) {
     try { const { data } = await api.get("/wishlist"); setWishlist(data); } catch {}
   }, []);
 
-  useEffect(() => { fetchMe(); }, [fetchMe]);
+  useEffect(() => { fetchMe(); fetchSettings(); }, [fetchMe, fetchSettings]);
   useEffect(() => { if (user) { refreshCart(); refreshWishlist(); } }, [user, refreshCart, refreshWishlist]);
+
+  useEffect(() => {
+    if (!themeSettings) return;
+    const r = document.documentElement;
+    if (themeSettings.primary) r.style.setProperty("--primary", themeSettings.primary);
+    if (themeSettings.secondary) r.style.setProperty("--accent", themeSettings.secondary);
+    if (themeSettings.accent) r.style.setProperty("--accent-hover", themeSettings.accent);
+    if (themeSettings.background) r.style.setProperty("--bg", themeSettings.background);
+    if (themeSettings.text) r.style.setProperty("--text", themeSettings.text);
+    if (themeSettings.button_radius !== undefined) r.style.setProperty("--button-radius", `${themeSettings.button_radius}px`);
+    if (themeSettings.card_radius !== undefined) r.style.setProperty("--card-radius", `${themeSettings.card_radius}px`);
+  }, [themeSettings]);
 
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
@@ -70,7 +158,7 @@ export function AppProvider({ children }) {
   };
 
   return (
-    <AppCtx.Provider value={{ user, setSession: setUser, loadingUser, cart, wishlist, login, register, logout, addToCart, updateCart, clearCart, toggleWishlist, refreshCart }}>
+    <AppCtx.Provider value={{ user, setSession: setUser, loadingUser, cart, wishlist, login, register, logout, addToCart, updateCart, clearCart, toggleWishlist, refreshCart, storeSettings, themeSettings, headerConfig, footerConfig, fetchSettings }}>
       {children}
     </AppCtx.Provider>
   );

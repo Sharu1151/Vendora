@@ -177,6 +177,7 @@ class Address(BaseModel):
     state: str
     pincode: str
     country: str = "India"
+    is_default: bool = False
 
 
 class Coupon(BaseModel):
@@ -284,11 +285,14 @@ async def register(body: RegisterIn):
         "name": body.name,
         "password_hash": hash_pw(body.password),
         "role": "customer",
+        "wallet": 0.0,
+        "points": 0,
+        "status": "active",
         "created_at": now(),
     }
     await db.users.insert_one(user)
     token = make_token(user["id"], user["role"])
-    return {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"], "role": user["role"]}}
+    return {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"], "role": user["role"], "wallet": 0.0, "points": 0, "status": "active"}}
 
 
 @api.post("/auth/seller/register")
@@ -302,6 +306,9 @@ async def seller_register(body: SellerRegisterIn):
         "name": body.name,
         "password_hash": hash_pw(body.password),
         "role": "seller",
+        "wallet": 0.0,
+        "points": 0,
+        "status": "active",
         "created_at": now(),
     }
     await db.users.insert_one(user)
@@ -313,7 +320,7 @@ async def seller_register(body: SellerRegisterIn):
     ).model_dump()
     await db.seller_profiles.insert_one(profile)
     token = make_token(user_id, "seller")
-    return {"token": token, "user": {"id": user_id, "email": user["email"], "name": user["name"], "role": "seller"}}
+    return {"token": token, "user": {"id": user_id, "email": user["email"], "name": user["name"], "role": "seller", "wallet": 0.0, "points": 0, "status": "active"}}
 
 
 @api.post("/auth/login")
@@ -322,12 +329,31 @@ async def login(body: LoginIn):
     if not user or not check_pw(body.password, user["password_hash"]):
         raise HTTPException(401, "Invalid credentials")
     token = make_token(user["id"], user["role"])
-    return {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"], "role": user["role"]}}
+    return {
+        "token": token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"],
+            "role": user["role"],
+            "wallet": user.get("wallet", 0.0),
+            "points": user.get("points", 0),
+            "status": user.get("status", "active")
+        }
+    }
 
 
 @api.get("/auth/me")
 async def me(user=Depends(current_user)):
-    return {"id": user["id"], "email": user["email"], "name": user["name"], "role": user["role"]}
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "name": user["name"],
+        "role": user["role"],
+        "wallet": user.get("wallet", 0.0),
+        "points": user.get("points", 0),
+        "status": user.get("status", "active")
+    }
 
 
 # ---------------- CATEGORY ROUTES ----------------
@@ -551,9 +577,29 @@ async def list_addresses(user=Depends(current_user)):
 async def add_address(addr: Address, user=Depends(current_user)):
     doc = addr.model_dump()
     doc["user_id"] = user["id"]
+    if doc.get("is_default"):
+        await db.addresses.update_many({"user_id": user["id"]}, {"$set": {"is_default": False}})
     await db.addresses.insert_one(doc)
     doc.pop("_id", None)
     return doc
+
+
+@api.put("/addresses/{aid}")
+async def edit_address(aid: str, addr: Address, user=Depends(current_user)):
+    doc = addr.model_dump()
+    doc.pop("id", None)
+    doc["user_id"] = user["id"]
+    if doc.get("is_default"):
+        await db.addresses.update_many({"user_id": user["id"]}, {"$set": {"is_default": False}})
+    await db.addresses.update_one({"user_id": user["id"], "id": aid}, {"$set": doc})
+    return {"id": aid, **doc}
+
+
+@api.put("/addresses/{aid}/default")
+async def set_default_address(aid: str, user=Depends(current_user)):
+    await db.addresses.update_many({"user_id": user["id"]}, {"$set": {"is_default": False}})
+    await db.addresses.update_one({"user_id": user["id"], "id": aid}, {"$set": {"is_default": True}})
+    return {"ok": True}
 
 
 @api.delete("/addresses/{aid}")
@@ -1077,6 +1123,53 @@ async def super_stats(_=Depends(require_super)):
 @api.get("/banners")
 async def list_banners():
     return await db.banners.find({}, {"_id": 0}).to_list(20)
+
+
+# ---------------- PUBLIC SETTINGS ----------------
+@api.get("/settings/store")
+async def get_public_store_settings():
+    doc = await db.store_settings.find_one({"_id": "singleton"})
+    if not doc:
+        from admin_ext import StoreSettings
+        return StoreSettings().model_dump()
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/settings/theme")
+async def get_public_theme():
+    doc = await db.theme_settings.find_one({"_id": "singleton"})
+    if not doc:
+        from admin_ext import ThemeSettings
+        return ThemeSettings().model_dump()
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/settings/header")
+async def get_public_header():
+    doc = await db.header_config.find_one({"_id": "singleton"})
+    if not doc:
+        from admin_ext import HeaderConfig
+        return HeaderConfig().model_dump()
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/settings/footer")
+async def get_public_footer():
+    doc = await db.footer_config.find_one({"_id": "singleton"})
+    if not doc:
+        from admin_ext import FooterConfig
+        return FooterConfig().model_dump()
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/homepage")
+async def get_public_homepage():
+    docs = await db.homepage_sections.find({}, {"_id": 0}).sort("order", 1).to_list(200)
+    return docs
 
 
 @api.get("/")

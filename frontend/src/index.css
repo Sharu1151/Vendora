@@ -17,6 +17,8 @@
   --success: #40916C;
   --warning: #F4A261;
   --destructive: #991B1B;
+  --button-radius: 999px;
+  --card-radius: 16px;
 }
 
 body {
@@ -77,9 +79,11 @@ h1, h2, h3, h4, h5, h6, .font-display {
 /* Utility classes */
 .container-x { @apply max-w-[1400px] mx-auto px-6 lg:px-10; }
 .overline { @apply uppercase text-xs tracking-[0.2em] font-bold text-[#78716C]; }
-.btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1B4332] text-white px-6 py-3 font-medium hover:bg-[#2D6A4F] transition-colors duration-200 border border-[#1B4332]; }
-.btn-outline { @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#1B4332] text-[#1B4332] px-6 py-3 font-medium hover:bg-[#1B4332] hover:text-white transition-colors duration-200; }
-.card-soft { @apply bg-white rounded-xl border border-[#E7E5E4] shadow-sm; }
+.btn-primary { @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all duration-200 text-white border; border-color: var(--primary); background-color: var(--primary); border-radius: var(--button-radius); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-outline { @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium transition-all duration-200 border; border-color: var(--primary); color: var(--primary); border-radius: var(--button-radius); }
+.btn-outline:hover { background-color: var(--primary); color: white; }
+.card-soft { @apply bg-white border border-[#E7E5E4] shadow-sm; border-radius: var(--card-radius); }
 .hover-lift { transition: transform 200ms ease-out; }
 .hover-lift:hover { transform: translateY(-4px); }
 

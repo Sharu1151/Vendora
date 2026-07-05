@@ -968,6 +968,46 @@ async def customer_addresses(cid: str):
     return await _db.addresses.find({"user_id": cid}, {"_id": 0}).to_list(50)
 
 
+class AdminAddressIn(BaseModel):
+    name: str
+    phone: str
+    line1: str
+    line2: str = ""
+    city: str
+    state: str
+    pincode: str
+    country: str = "India"
+    is_default: bool = False
+
+
+@admin_router.post("/customers/{cid}/addresses")
+async def admin_add_customer_address(cid: str, body: AdminAddressIn):
+    doc = body.model_dump()
+    doc["id"] = _uid()
+    doc["user_id"] = cid
+    if doc.get("is_default"):
+        await _db.addresses.update_many({"user_id": cid}, {"$set": {"is_default": False}})
+    await _db.addresses.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@admin_router.put("/customers/{cid}/addresses/{aid}")
+async def admin_edit_customer_address(cid: str, aid: str, body: AdminAddressIn):
+    doc = body.model_dump()
+    doc["user_id"] = cid
+    if doc.get("is_default"):
+        await _db.addresses.update_many({"user_id": cid}, {"$set": {"is_default": False}})
+    await _db.addresses.update_one({"user_id": cid, "id": aid}, {"$set": doc})
+    return {"id": aid, **doc}
+
+
+@admin_router.delete("/customers/{cid}/addresses/{aid}")
+async def admin_delete_customer_address(cid: str, aid: str):
+    await _db.addresses.delete_one({"user_id": cid, "id": aid})
+    return {"ok": True}
+
+
 # ==================== ORDERS ENHANCED ====================
 class OrderUpdate(BaseModel):
     status: Optional[str] = None
