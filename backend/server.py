@@ -29,11 +29,11 @@ else:
     mongo_url = raw_mongo_url
 
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'mangalore_store')]
 
-JWT_SECRET = os.environ['JWT_SECRET']
+JWT_SECRET = os.environ.get('JWT_SECRET', '8dfec5071b2d6c3c8f1458afa785a6ba')
 JWT_ALGO = "HS256"
-stripe.api_key = os.environ['STRIPE_SECRET_KEY']
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_mock_stripe_key')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 
