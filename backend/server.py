@@ -19,7 +19,15 @@ import stripe
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-mongo_url = os.environ['MONGO_URL']
+raw_mongo_url = os.environ['MONGO_URL'].strip().strip('"').strip("'")
+# Clean up any trailing query parameter issues
+if "?" in raw_mongo_url:
+    base, query = raw_mongo_url.split("?", 1)
+    params = [p for p in query.split("&") if "=" in p]
+    mongo_url = base + ("?" + "&".join(params) if params else "")
+else:
+    mongo_url = raw_mongo_url
+
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
