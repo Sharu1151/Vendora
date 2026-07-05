@@ -41,7 +41,7 @@ export default function Header() {
           </div>
         </Link>
         {headerConfig?.show_search !== false && (
-          <form onSubmit={doSearch} className="flex-1 max-w-2xl relative">
+          <form onSubmit={doSearch} className="hidden sm:block flex-1 max-w-2xl relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716C]" />
             <Input
               data-testid="header-search-input"
@@ -52,7 +52,12 @@ export default function Header() {
             />
           </form>
         )}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
+          {headerConfig?.show_search !== false && (
+            <Link to="/products" className="p-3 rounded-full hover:bg-[#F4EFE6] transition-colors sm:hidden">
+              <Search className="w-5 h-5" />
+            </Link>
+          )}
           {headerConfig?.show_wishlist !== false && (
             <Link to="/wishlist" data-testid="header-wishlist-link" className="p-3 rounded-full hover:bg-[#F4EFE6] transition-colors">
               <Heart className="w-5 h-5" />
@@ -97,7 +102,10 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button data-testid="header-login-btn" onClick={() => nav("/login")} className="rounded-full bg-[var(--primary)] hover:opacity-90">Login</Button>
+                <Button data-testid="header-login-btn" onClick={() => nav("/login")} className="rounded-full bg-[var(--primary)] hover:opacity-90 px-3 sm:px-6">
+                  <span className="hidden sm:inline">Login</span>
+                  <User className="w-5 h-5 sm:hidden" />
+                </Button>
               )}
             </>
           )}
