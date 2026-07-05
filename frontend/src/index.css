@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,500,700,400,900&f[]=satoshi@900,700,500,300,400&display=swap');
+
+:root {
+  --bg: #FDFBF7;
+  --surface: #F4EFE6;
+  --primary: #1B4332;
+  --primary-hover: #2D6A4F;
+  --accent: #E07A5F;
+  --accent-hover: #D96A4D;
+  --text: #1C1917;
+  --muted: #78716C;
+  --border: #E7E5E4;
+  --success: #40916C;
+  --warning: #F4A261;
+  --destructive: #991B1B;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+@layer base {
+  :root {
+    --background: 36 43% 98%;
+    --foreground: 24 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 10%;
+    --primary: 154 45% 15%;
+    --primary-foreground: 36 43% 98%;
+    --secondary: 33 33% 93%;
+    --secondary-foreground: 154 45% 15%;
+    --muted: 33 33% 93%;
+    --muted-foreground: 25 5% 45%;
+    --accent: 15 65% 63%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 35%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 10% 90%;
+    --input: 30 10% 90%;
+    --ring: 154 45% 30%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+/* Marquee editorial ribbon */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: inline-flex;
+  animation: marquee-x 45s linear infinite;
+  white-space: nowrap;
+}
+
+/* Utility classes */
+.container-x { @apply max-w-[1400px] mx-auto px-6 lg:px-10; }
+.overline { @apply uppercase text-xs tracking-[0.2em] font-bold text-[#78716C]; }
+.btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1B4332] text-white px-6 py-3 font-medium hover:bg-[#2D6A4F] transition-colors duration-200 border border-[#1B4332]; }
+.btn-outline { @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#1B4332] text-[#1B4332] px-6 py-3 font-medium hover:bg-[#1B4332] hover:text-white transition-colors duration-200; }
+.card-soft { @apply bg-white rounded-xl border border-[#E7E5E4] shadow-sm; }
+.hover-lift { transition: transform 200ms ease-out; }
+.hover-lift:hover { transform: translateY(-4px); }
+
+/* Hide scrollbars for horizontal scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

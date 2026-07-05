@@ -1,0 +1,2 @@
+/* Base app styles. Component styles handled via Tailwind. */
+.App { min-height: 100vh; }

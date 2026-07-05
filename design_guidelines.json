@@ -1,0 +1,116 @@
+{
+  "theme_and_archetype": {
+    "theme": "light",
+    "archetype": "Archetype 1: Organic & Earthy",
+    "rationale": "For an enterprise grocery/supermarket SaaS (Mangalore Store), users need to feel trust, warmth, and natural abundance. We avoid clinical 'fintech' blues or harsh 'tech' dark modes. The interface leans into tactile, warm, earthy tones representing farm-to-table freshness while maintaining Swiss-level clarity in the admin panels."
+  },
+  "typography": {
+    "fonts": {
+      "headings": "Cabinet Grotesk",
+      "body": "Satoshi",
+      "mono": "JetBrains Mono",
+      "import_url": "https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,500,700,400,900&f[]=satoshi@900,700,500,300,400&display=swap"
+    },
+    "rules": {
+      "anti_default": "Absolutely no Inter, Roboto, or Open Sans. Cabinet Grotesk provides a premium, slightly wide, and welcoming supermarket vibe.",
+      "headings": "Tight letter spacing (tracking-tight). Max size text-6xl (fluid). Never center by default. Use fluid scales. Use font-medium to font-black.",
+      "overlines": "Uppercase, tiny text-xs, tracking-[0.2em], font-bold.",
+      "body": "Loose line height (leading-relaxed) for readability.",
+      "hierarchy": "The jump between a heading and its subheading must not exceed 2 Tailwind steps (e.g., text-5xl H1 -> text-3xl H2)."
+    }
+  },
+  "colors": {
+    "palette": {
+      "base_background": "#FDFBF7",
+      "surface": "#F4EFE6",
+      "primary": "#1B4332",
+      "primary_hover": "#2D6A4F",
+      "primary_foreground": "#FFFFFF",
+      "accent": "#E07A5F",
+      "accent_hover": "#D96A4D",
+      "text_main": "#1C1917",
+      "text_muted": "#78716C",
+      "border": "#E7E5E4",
+      "success": "#40916C",
+      "warning": "#F4A261",
+      "destructive": "#991B1B"
+    },
+    "rules": {
+      "tinted_grey": "Never use pure #000000 or #808080. Stone greys are tinted with warmth (e.g. #1C1917 for black).",
+      "contrast": "Minimum 4.5:1 for normal text. Check contrast against backgrounds.",
+      "hover_states": "Always explicitly set text color on hover. Focus rings must use a lighter shade of primary (e.g., ring-[#40916C]). Only use primary color for CTAs."
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "Generous Spacing Philosophy. Scale: p-1, p-2, p-4, p-6, p-8, p-12, p-16, p-24.",
+    "containers": "Containers with borders MUST have internal padding (p-6 or p-8) to prevent text collision.",
+    "storefront_grid": "MODE A: 'Tetris' Grid. Asymmetrical bento grids for categories/promos (col-span-8, col-span-4). Gaps: gap-8 to gap-12.",
+    "admin_grid": "MODE B: 'Control Room' Grid. Dense, data-correlated grids for super-admin/admin stats. Gaps: gap-4 to gap-6. Every pixel utilized.",
+    "alignment": "Optical alignment over geometrical. Left-align dense content.",
+    "images": "Images must not exceed 80vh on mobile."
+  },
+  "surfaces": {
+    "storefront_cards": "Glassmorphism for floating headers (backdrop-blur-xl bg-[#FDFBF7]/80 border-b border-[#E7E5E4]/50 saturate-150). Soft ambient shadows for product cards (shadow-sm rounded-xl).",
+    "admin_cards": "Flat solid surfaces. 1px delicate inner stroke (#E7E5E4), rounded-lg, flat background (#FFFFFF). Minimal shadow.",
+    "buttons": "Neumorphic tactile touch. Solid backgrounds. 1px sharp border to ground it."
+  },
+  "components": {
+    "strategy": "Shadcn UI heavily customized via Tailwind for Admin; custom HTML/Tailwind for Marketing layout.",
+    "forms": "Never use native <input>. Use Shadcn Input, Select, Form, Checkbox.",
+    "interactive": "Use HTML divs only for layout. Use Shadcn for interactive logic (Dialogs, Tabs).",
+    "charts": "Shadcn chart components (Recharts).",
+    "marquees": "Editorial Ribbon style. Serif/Grotesk font, low contrast (pale background, dark text), massive gaps (gap-24), slow smooth drift using react-fast-marquee.",
+    "customizations": "Override Shadcn fixed heights (e.g., h-9 on tabs) with h-auto to prevent cutoff."
+  },
+  "motion_and_interactions": {
+    "rules": "Micro-interactions for feedback. Hover lift (-translate-y-1).",
+    "transitions": "Use specific properties (transition-transform duration-200 ease-out). No 'transition-all'.",
+    "accessibility": "Respect prefers-reduced-motion. Meaningful animations only. Use aria-hidden='true' on decorative animations."
+  },
+  "icons": {
+    "library": "lucide-react for default interfaces. Use @phosphor-icons/react for high-end storefront duotone icons if needed.",
+    "install_command": "yarn add @phosphor-icons/react"
+  },
+  "accessibility_and_testing": {
+    "data_testid": "MANDATORY on all interactive and key informational elements (buttons, links, form inputs, menus, error messages, user balances). Use kebab-case role-based naming (e.g., data-testid='add-to-cart-button').",
+    "aria": "Use aria-hidden='true' on decorative elements.",
+    "contrast": "Ensure text over images uses Text Shadow or Gradient Overlays (max bg-black/50 for dark, bg-white/40 for light)."
+  },
+  "media": {
+    "strategy": "No placeholder URLs (via.placeholder.com etc.). Use the provided Unsplash URLs ONLY.",
+    "images": {
+      "hero_banner": {
+        "url": "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwyfHxmcmVzaCUyMG9yZ2FuaWMlMjB2ZWdldGFibGVzJTIwbWFya2V0JTIwaGFydmVzdHxlbnwwfHx8fDE3ODMyMzUyMzF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Hero section banner showing a vibrant variety of fresh organic vegetables. Represents abundance and freshness."
+      },
+      "category_spices": {
+        "url": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjBzcGljZXMlMjB2aWJyYW50JTIwZm9vZHxlbnwwfHx8fDE3ODMyMzUyMzF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Vibrant Indian spices on a white table. Use for 'Pantry' or 'Spices' category card/banner."
+      },
+      "store_aisle": {
+        "url": "https://images.unsplash.com/photo-1601600576337-c1d8a0d1373c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjbGVhbiUyMHN1cGVybWFya2V0JTIwYWlzbGV8ZW58MHx8fHwxNzgzMjM1MjMxfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Clean, modern supermarket aisle. Use for the 'About Us', 'Store Locator', or Super Admin background."
+      },
+      "customer_shopping": {
+        "url": "https://images.unsplash.com/photo-1553531889-56cc480ac5cb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwyfHxoYXBweSUyMGN1c3RvbWVyJTIwc2hvcHBpbmclMjBncm9jZXJ5fGVufDB8fHx8MTc4MzIzNTI0M3ww&ixlib=rb-4.1.0&q=85",
+        "description": "A happy customer shopping. Ideal for Testimonials or Marketing 'Why Choose Us' section."
+      },
+      "admin_texture_bg": {
+        "url": "https://images.unsplash.com/photo-1773802539139-d0ecea5b2002?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyZWVuJTIwdGVycmElMjBjb3R0YSUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzgzMjM1MjQzfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract terra cotta wall with plant shadow. Use as a subtle login background or empty state illustration."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette, emphasizing #FDFBF7 for backgrounds, not plain white.",
+    "Use Cabinet Grotesk for Headings and Satoshi for Body. Apply them in Tailwind config and inject the Fontshare CDN in index.html.",
+    "Implement the 'data-testid' on ALL interactive buttons, links, and forms.",
+    "For the storefront hero section, utilize the hero_banner image with a gradient overlay (bg-gradient-to-r from-black/50 to-transparent) to maintain image clarity while making text legible.",
+    "Admin dashboards must use the Mode B 'Control Room' grid: dense, gap-4 to gap-6, cardless or flat 1px bordered cards.",
+    "Do NOT use the HTML <select> tag. Always use Shadcn Select/Dropdown.",
+    "For product filtering, use a sidebar or top-bar that left-aligns the filter options.",
+    "Implement 'Glassmorphism (The Crystal Look)' for the sticky storefront header.",
+    "Include an infinite slow marquee with the 'Editorial Ribbon' style (e.g. 'Fresh Organic • Fast Delivery • Premium Quality') on the landing page.",
+    "All image URLs provided in the media section MUST be used where applicable. Do not use generic placeholders."
+  ]
+}

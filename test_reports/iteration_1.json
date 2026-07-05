@@ -1,0 +1,49 @@
+{
+  "summary": "Backend-only smoke + integration test of Mangalore Store API. 22/24 endpoints work correctly across auth, catalog, cart, wishlist, addresses, coupons, reviews, checkout (Stripe session created), payment status, orders, admin stats/orders/customers, super stats, RBAC (customer->403 for admin, admin/customer->403 for super), and AI /describe (EMERGENT_LLM_KEY works). Two POST endpoints return 500 due to a common ObjectId serialization bug.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "GET /api/ health -> 200 {service:'Mangalore Store API', status:'ok'}",
+    "GET /api/categories -> 8 seed categories",
+    "GET /api/products with q/category/min_price/max_price/sort/featured/trending/flash filters",
+    "GET /api/products/{id} returns product detail",
+    "POST /api/auth/register creates customer + returns token+user",
+    "POST /api/auth/login for customer, admin, super_admin (correct roles)",
+    "GET /api/auth/me valid=200; missing=401; invalid=401",
+    "POST /api/cart/add, GET /api/cart (items+subtotal), /cart/update (qty change & qty=0 remove), /cart/clear",
+    "POST /api/wishlist/toggle add then remove; GET /api/wishlist",
+    "POST /api/addresses, GET /api/addresses, DELETE /api/addresses/{id}",
+    "GET /api/coupons -> 3 active; POST /api/coupons/apply FRESH10 -> discount=50 on subtotal=500",
+    "POST /api/reviews creates + updates product rating; GET /api/reviews/{pid}",
+    "POST /api/checkout returns checkout_url + session_id; unauth -> 401",
+    "GET /api/payments/status/{session_id} returns status + order_id",
+    "GET /api/orders/mine returns customer's orders",
+    "GET /api/admin/stats (admin OK, customer 403), GET /admin/orders, PUT /admin/orders/{id}/status, GET /admin/customers",
+    "PUT /api/products/{id} (admin) works",
+    "DELETE /api/products/{id} not fully retested (blocked by POST bug) but PUT confirmed",
+    "GET /api/super/stores, DELETE /api/super/stores/{id}, GET /api/super/stats (super only; admin/customer -> 403)",
+    "POST /api/ai/describe (admin) -> 200 with description (344 chars) and highlights; customer -> 403",
+    "RBAC enforced across all admin/super endpoints tested"
+  ],
+  "failed": [
+    {
+      "area": "POST /api/products (admin)",
+      "issue": "Returns 500 Internal Server Error. Root cause: server.py line ~333 calls `db.products.insert_one(doc)` which mutates `doc` by adding a MongoDB ObjectId `_id`, then `return doc` fails JSON serialization ('ObjectId' object is not iterable). Fix: pop `_id` before return, or return a fresh model_dump copy.",
+      "evidence": "Backend log: ValueError: [TypeError(\"'ObjectId' object is not iterable\"), TypeError('vars() argument must have __dict__ attribute')]. Response body: 'Internal Server Error'.",
+      "priority": "HIGH"
+    },
+    {
+      "area": "POST /api/super/stores (super_admin)",
+      "issue": "Returns 500 Internal Server Error. Same ObjectId serialization bug: `await db.stores.insert_one(doc); return doc` (server.py ~708-712). doc gets mutated with ObjectId `_id`.",
+      "evidence": "Response: 'Internal Server Error'. Same TypeError as above in backend.err.log.",
+      "priority": "HIGH"
+    }
+  ],
+  "action_items": [
+    "Fix POST /api/products: after `await db.products.insert_one(doc)`, do `doc.pop('_id', None)` before `return doc` (or return `prod.model_dump()` before insertion mutates it).",
+    "Fix POST /api/super/stores: same pattern - `doc.pop('_id', None)` before return (server.py lines 708-712).",
+    "Audit all other POST endpoints that do `insert_one(doc); return doc` for the same ObjectId leakage (auth/register, /addresses, /reviews, /coupons all appeared to work - already returning models without _id, but worth double-checking)."
+  ],
+  "success_rate": {"backend": "91%", "frontend": "not tested (backend-only per request)"},
+  "retest_needed": true,
+  "full_testing_deferred": true
+}
