@@ -98,7 +98,7 @@ async def seed():
     # Users (upsert) - includes sellers
     demo_accounts = [
         ("admin@mangalorestore.com", "Store Admin", "admin", "Admin@123"),
-        ("super@emergent.com", "Super Admin", "super_admin", "Super@123"),
+        ("super@vendora.com", "Super Admin", "super_admin", "Super@123"),
         ("customer@test.com", "Priya Shetty", "customer", "Test@1234"),
         ("house@mangalorestore.com", "Mangalore Store (House)", "seller", "House@123"),
         ("seller1@mangalore.com", "Ravi Kamath", "seller", "Seller@123"),

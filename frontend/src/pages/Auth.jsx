@@ -57,7 +57,7 @@ export function Login() {
             <div className="overline mb-2">Demo accounts</div>
             <div>Customer: customer@test.com / Test@1234</div>
             <div>Admin: admin@mangalorestore.com / Admin@123</div>
-            <div>Super Admin: super@emergent.com / Super@123</div>
+            <div>Super Admin: super@vendora.com / Super@123</div>
             <div>Seller (Coastal Farms): seller1@mangalore.com / Seller@123</div>
             <div>Seller (Konkan Spices): seller2@mangalore.com / Seller@123</div>
             <div className="mt-3">
