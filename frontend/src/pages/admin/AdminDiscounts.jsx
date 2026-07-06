@@ -48,7 +48,7 @@ export default function AdminDiscounts() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editing ? "Edit" : "New"} discount rule</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input className="col-span-2" placeholder="Rule name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
             <Select value={f.type} onValueChange={(v) => setF({ ...f, type: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>

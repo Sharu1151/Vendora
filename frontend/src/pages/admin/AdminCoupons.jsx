@@ -38,7 +38,7 @@ export default function AdminCoupons() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>New coupon</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input className="col-span-2" placeholder="Code" value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} />
             <Input type="number" placeholder="Discount %" value={f.discount_pct} onChange={(e) => setF({ ...f, discount_pct: e.target.value })} />
             <Input type="number" placeholder="Max discount ₹" value={f.max_discount} onChange={(e) => setF({ ...f, max_discount: e.target.value })} />

@@ -97,13 +97,13 @@ export default function AdminCustomers() {
           {detail && (
             <>
               <DialogHeader><DialogTitle>{detail.name}</DialogTitle></DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Input placeholder="Name" value={detail.name} onChange={(e) => setDetail({ ...detail, name: e.target.value })} />
                 <Input placeholder="Email" value={detail.email} onChange={(e) => setDetail({ ...detail, email: e.target.value })} />
                 <Input type="number" placeholder="Wallet" value={detail.wallet || 0} onChange={(e) => setDetail({ ...detail, wallet: e.target.value })} />
                 <Input type="number" placeholder="Points" value={detail.points || 0} onChange={(e) => setDetail({ ...detail, points: e.target.value })} />
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="text-[10px] uppercase text-[#78716C] tracking-widest mb-2">Recent orders ({orders.length})</div>
                   <div className="max-h-64 overflow-y-auto space-y-1">

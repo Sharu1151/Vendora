@@ -41,7 +41,7 @@ export default function AdminLayout() {
 
   if (!user) return null;
 
-  const sidebarWidth = collapsed ? "w-[72px]" : "w-[264px]";
+  const sidebarWidth = (collapsed && !mobileOpen) ? "w-[72px]" : "w-[264px]";
 
   return (
     <div className="min-h-screen bg-[#F7F5F0] text-[#1C1917]">
@@ -109,13 +109,13 @@ export default function AdminLayout() {
               <MenuIcon className="w-5 h-5" />
             </button>
             <button
-              className="flex-1 max-w-md flex items-center gap-2 h-10 px-4 rounded-full bg-[#F4EFE6] hover:bg-[#EEE7D9] text-sm text-[#78716C]"
+              className="flex items-center justify-center sm:justify-start h-10 w-10 sm:w-auto sm:flex-1 max-w-md px-0 sm:px-4 rounded-full bg-[#F4EFE6] hover:bg-[#EEE7D9] text-sm text-[#78716C]"
               onClick={() => setPaletteOpen(true)}
               data-testid="admin-search-btn"
             >
               <Search className="w-4 h-4" />
-              <span>Search modules, actions…</span>
-              <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-mono border border-[#E7E5E4] rounded px-1.5 py-0.5 bg-white">
+              <span className="hidden sm:inline">Search modules, actions…</span>
+              <span className="ml-auto hidden sm:inline-flex items-center gap-1 text-[11px] font-mono border border-[#E7E5E4] rounded px-1.5 py-0.5 bg-white">
                 <Command className="w-3 h-3" />K
               </span>
             </button>

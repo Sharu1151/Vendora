@@ -51,7 +51,7 @@ export default function AdminBlogs() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit" : "New"} blog post</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input placeholder="Title" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} />
             <Input placeholder="Slug" value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} />
             <Input placeholder="Author" value={f.author} onChange={(e) => setF({ ...f, author: e.target.value })} />

@@ -48,7 +48,7 @@ export default function AdminBanners() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editing ? "Edit" : "New"} banner</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input className="col-span-2" placeholder="Title" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} />
             <Textarea className="col-span-2" placeholder="Subtitle" value={f.subtitle} onChange={(e) => setF({ ...f, subtitle: e.target.value })} />
             <Input className="col-span-2" placeholder="Image URL" value={f.image} onChange={(e) => setF({ ...f, image: e.target.value })} />

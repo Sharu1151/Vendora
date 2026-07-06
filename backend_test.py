@@ -9,7 +9,7 @@ import sys
 from typing import Optional, Dict, Any
 
 # Backend URL from frontend/.env
-BASE_URL = "https://seller-mgmt-system.preview.emergentagent.com/api"
+BASE_URL = "https://vendora-xzuj.onrender.com/api"
 
 # Test credentials from /app/memory/test_credentials.md
 CREDENTIALS = {

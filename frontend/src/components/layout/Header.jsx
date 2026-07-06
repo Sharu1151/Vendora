@@ -18,7 +18,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--bg)]/85 border-b border-[#E7E5E4]/70 saturate-150">
       {headerConfig?.announcement?.enabled !== false && (
         <div className="border-b border-[#E7E5E4]/70 text-xs" style={{ backgroundColor: headerConfig?.announcement?.bg || "#1B4332", color: headerConfig?.announcement?.fg || "#FFFFFF" }}>
-          <div className="container-x flex items-center justify-between h-9">
+          <div className="container-x px-3 sm:px-6 flex items-center justify-between h-9">
             <div className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Deliver to {storeSettings?.address?.split(",")?.[1]?.trim() || "Mangalore, 575001"}</div>
             <div className="hidden sm:flex items-center gap-6">
               <span>{headerConfig?.announcement?.text || "Free delivery on orders over ₹499"}</span>
@@ -28,16 +28,16 @@ export default function Header() {
           </div>
         </div>
       )}
-      <div className="container-x flex items-center gap-6 h-20">
-        <Link to="/" data-testid="header-logo" className="flex items-center gap-2">
+      <div className="container-x px-3 sm:px-6 flex items-center justify-between h-20">
+        <Link to="/" data-testid="header-logo" className="flex items-center gap-1.5 sm:gap-2">
           {storeSettings?.logo ? (
-            <img src={storeSettings.logo} alt={storeSettings.name} className="w-10 h-10 object-contain" />
+            <img src={storeSettings.logo} alt={storeSettings.name} className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-display font-black">{logoLetter}</div>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-display font-black text-sm sm:text-base">{logoLetter}</div>
           )}
           <div className="leading-tight">
-            <div className="font-display text-xl font-black tracking-tight text-[var(--primary)]">{storeSettings?.name || "Mangalore"}</div>
-            <div className="overline -mt-1">{storeSettings?.tagline || "Store"}</div>
+            <div className="font-display text-sm sm:text-xl font-black tracking-tight text-[var(--primary)]">{storeSettings?.name || "Mangalore"}</div>
+            <div className="hidden sm:block overline -mt-1">{storeSettings?.tagline || "Store"}</div>
           </div>
         </Link>
         {headerConfig?.show_search !== false && (
@@ -52,19 +52,19 @@ export default function Header() {
             />
           </form>
         )}
-        <nav className="flex items-center gap-1 sm:gap-2">
+        <nav className="flex items-center gap-0.5 sm:gap-2">
           {headerConfig?.show_search !== false && (
-            <Link to="/products" className="p-3 rounded-full hover:bg-[#F4EFE6] transition-colors sm:hidden">
+            <Link to="/products" className="p-2 sm:p-3 rounded-full hover:bg-[#F4EFE6] transition-colors sm:hidden">
               <Search className="w-5 h-5" />
             </Link>
           )}
           {headerConfig?.show_wishlist !== false && (
-            <Link to="/wishlist" data-testid="header-wishlist-link" className="p-3 rounded-full hover:bg-[#F4EFE6] transition-colors">
+            <Link to="/wishlist" data-testid="header-wishlist-link" className="p-2 sm:p-3 rounded-full hover:bg-[#F4EFE6] transition-colors">
               <Heart className="w-5 h-5" />
             </Link>
           )}
           {headerConfig?.show_cart !== false && (
-            <Link to="/cart" data-testid="header-cart-link" className="relative p-3 rounded-full hover:bg-[#F4EFE6] transition-colors">
+            <Link to="/cart" data-testid="header-cart-link" className="relative p-2 sm:p-3 rounded-full hover:bg-[#F4EFE6] transition-colors">
               <ShoppingCart className="w-5 h-5" />
               {cart.items.length > 0 && (
                 <span data-testid="header-cart-count" className="absolute -top-1 -right-1 bg-[#E07A5F] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
@@ -78,8 +78,8 @@ export default function Header() {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button data-testid="header-user-menu" className="flex items-center gap-2 p-2 pr-4 rounded-full hover:bg-[#F4EFE6] transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-bold">{user.name[0]}</div>
+                    <button data-testid="header-user-menu" className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 sm:pr-4 rounded-full hover:bg-[#F4EFE6] transition-colors">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs sm:text-sm font-bold">{user.name[0]}</div>
                       <span className="hidden md:block text-sm font-medium">{user.name.split(" ")[0]}</span>
                     </button>
                   </DropdownMenuTrigger>
@@ -102,9 +102,9 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button data-testid="header-login-btn" onClick={() => nav("/login")} className="rounded-full bg-[var(--primary)] hover:opacity-90 px-3 sm:px-6">
+                <Button data-testid="header-login-btn" onClick={() => nav("/login")} className="rounded-full bg-[var(--primary)] hover:opacity-90 px-2 sm:px-6 h-8 sm:h-10">
                   <span className="hidden sm:inline">Login</span>
-                  <User className="w-5 h-5 sm:hidden" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 sm:hidden" />
                 </Button>
               )}
             </>

@@ -149,7 +149,7 @@ export default function AdminProducts() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input data-testid="prod-name" placeholder="Product name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
             <Input placeholder="Slug (auto)" value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} />
             <Select value={f.category_id} onValueChange={(v) => setF({ ...f, category_id: v })}>
