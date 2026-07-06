@@ -20,11 +20,24 @@ export default function AdminCms() {
   const openNew = () => { setEditing(null); setF({ key: "custom", slug: "", title: "", content: "", seo_title: "", seo_description: "", status: "published" }); setOpen(true); };
   const openEdit = (r) => { setEditing(r.id); setF({ ...r }); setOpen(true); };
   const save = async () => {
-    const body = { ...f, slug: f.slug || f.title.toLowerCase().replace(/\s+/g, "-") };
-    if (editing) await api.put(`/admin/cms/${editing}`, body); else await api.post("/admin/cms", body);
-    toast.success("Saved"); setOpen(false); refresh();
+    try {
+      const body = { ...f, slug: f.slug || f.title.toLowerCase().replace(/\s+/g, "-") };
+      if (editing) await api.put(`/admin/cms/${editing}`, body); else await api.post("/admin/cms", body);
+      toast.success("Saved successfully"); setOpen(false); refresh();
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Save failed");
+    }
   };
-  const del = async (id) => { if (!window.confirm("Delete page?")) return; await api.delete(`/admin/cms/${id}`); refresh(); };
+  const del = async (id) => {
+    if (!window.confirm("Delete page?")) return;
+    try {
+      await api.delete(`/admin/cms/${id}`);
+      toast.success("Deleted successfully");
+      refresh();
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Delete failed");
+    }
+  };
 
   return (
     <div>

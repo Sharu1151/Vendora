@@ -172,7 +172,54 @@ export default function AdminProducts() {
             <Input placeholder="Max qty" type="number" value={f.max_qty} onChange={(e) => setF({ ...f, max_qty: e.target.value })} />
             <Input placeholder="Weight (kg)" type="number" value={f.weight} onChange={(e) => setF({ ...f, weight: e.target.value })} />
             <Input placeholder="Dimensions (LxWxH cm)" value={f.dimensions} onChange={(e) => setF({ ...f, dimensions: e.target.value })} />
-            <Input className="col-span-2" placeholder="Main image URL" value={f.images?.[0] || ""} onChange={(e) => setF({ ...f, images: [e.target.value] })} />
+            <div className="col-span-2 space-y-2">
+              <div className="flex items-center gap-3">
+                <Input 
+                  placeholder="Main image URL" 
+                  value={f.images?.[0] || ""} 
+                  onChange={(e) => setF({ ...f, images: [e.target.value] })} 
+                  className="flex-1"
+                />
+                <label className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-full bg-[#1B4332] hover:bg-[#2D6A4F] text-white cursor-pointer text-sm font-medium transition-colors shrink-0">
+                  <Upload className="w-4 h-4" />
+                  Upload Image
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const toastId = toast.loading("Uploading image...");
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const { data } = await api.post("/admin/media/upload", fd, {
+                          headers: { "Content-Type": "multipart/form-data" }
+                        });
+                        const resolvedUrl = data.url.startsWith("http") ? data.url : `${API_BASE.replace("/api", "")}${data.url}`;
+                        setF({ ...f, images: [resolvedUrl] });
+                        toast.success("Image uploaded successfully", { id: toastId });
+                      } catch (err) {
+                        toast.error("Upload failed", { id: toastId });
+                      }
+                    }} 
+                    className="hidden" 
+                  />
+                </label>
+              </div>
+              {f.images?.[0] && (
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-stone-200">
+                  <img src={f.images[0]} alt="Preview" className="w-full h-full object-cover" />
+                  <button 
+                    type="button" 
+                    onClick={() => setF({ ...f, images: [""] })}
+                    className="absolute top-1 right-1 bg-[#991B1B]/80 text-white rounded-full p-1 hover:bg-[#991B1B] transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
             <Input className="col-span-2" placeholder="Tags (comma separated)" value={(f.tags || []).join(", ")} onChange={(e) => setF({ ...f, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) })} />
             <div className="col-span-2 relative">
               <Textarea data-testid="prod-description" placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} className="min-h-[100px]" />
