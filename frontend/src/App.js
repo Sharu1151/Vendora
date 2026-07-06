@@ -28,7 +28,10 @@ import "@/App.css";
 
 function Shell({ children }) {
   const loc = useLocation();
-  const hideChrome = ["/login", "/register", "/seller/register"].includes(loc.pathname) || loc.pathname.startsWith("/admin");
+  const hideChrome = ["/login", "/register", "/seller/register"].includes(loc.pathname) || 
+                     loc.pathname.startsWith("/admin") || 
+                     loc.pathname.startsWith("/super-admin") || 
+                     loc.pathname.startsWith("/seller");
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
       {!hideChrome && <Header />}

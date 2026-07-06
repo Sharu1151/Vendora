@@ -8,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { 
-  Store as StoreIcon, Users, IndianRupee, Package, Plus, Trash2,
+  Store as StoreIcon, Users, IndianRupee, Package, Plus, Trash2, Pencil,
   Menu as MenuIcon, LayoutDashboard, ChevronRight,
-  PanelLeftClose, PanelLeftOpen, ArrowRight
+  PanelLeftClose, PanelLeftOpen, ArrowRight, Settings2, Activity
 } from "lucide-react";
 import DataTable from "./admin/components/DataTable";
 
@@ -20,9 +20,27 @@ export default function SuperAdmin() {
   const [stats, setStats] = useState(null);
   const [stores, setStores] = useState([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", slug: "", vertical: "grocery", domain: "", plan: "starter", theme: "earthy", owner_email: "" });
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ name: "", slug: "", vertical: "grocery", domain: "", plan: "starter", theme: "earthy", owner_email: "", status: "active" });
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1200);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Global Config Mock State
+  const [config, setConfig] = useState({
+    selfReg: true,
+    requireSsl: true,
+    maintMode: false,
+    orderNotif: true
+  });
+
+  // Mock Audit Logs
+  const [logs, setLogs] = useState([
+    { id: 1, time: "Just now", type: "info", text: "Global config 'Require SSL' updated by super@vendora.com" },
+    { id: 2, time: "10 mins ago", type: "success", text: "Store 'Mangalore Store' vertical grocery successfully active" },
+    { id: 3, time: "1 hour ago", type: "warning", text: "Custom domain validation pending for 'mangalorestore.com'" },
+    { id: 4, time: "4 hours ago", type: "info", text: "Platform seeder initialized with 3 default tenants" },
+    { id: 5, time: "1 day ago", type: "danger", text: "Failed login attempt block for admin@mangalorestore.com from IP 192.168.1.5" }
+  ]);
 
   const refresh = async () => {
     const [s, sr] = await Promise.all([api.get("/super/stats"), api.get("/super/stores")]);
@@ -33,19 +51,73 @@ export default function SuperAdmin() {
     if (user?.role === "super_admin") refresh(); 
   }, [user]);
 
+  const openNew = () => {
+    setEditing(null);
+    setForm({ name: "", slug: "", vertical: "grocery", domain: "", plan: "starter", theme: "earthy", owner_email: "", status: "active" });
+    setOpen(true);
+  };
+
+  const openEdit = (r) => {
+    setEditing(r.id);
+    setForm({
+      name: r.name || "",
+      slug: r.slug || "",
+      vertical: r.vertical || "grocery",
+      domain: r.domain || "",
+      plan: r.plan || "starter",
+      theme: r.theme || "earthy",
+      owner_email: r.owner_email || "",
+      status: r.status || "active"
+    });
+    setOpen(true);
+  };
+
   const save = async () => {
     try {
-      await api.post("/super/stores", { ...form, slug: form.slug || form.name.toLowerCase().replace(/\s+/g, "-") });
-      toast.success("Store created"); setOpen(false); refresh();
-      setForm({ name: "", slug: "", vertical: "grocery", domain: "", plan: "starter", theme: "earthy", owner_email: "" });
+      const payload = { ...form, slug: form.slug || form.name.toLowerCase().replace(/\s+/g, "-") };
+      if (editing) {
+        await api.put(`/super/stores/${editing}`, payload);
+        toast.success("Store updated");
+        // Log editing activity
+        setLogs(prev => [
+          { id: Date.now(), time: "Just now", type: "info", text: `Store '${payload.name}' updated by super@vendora.com` },
+          ...prev
+        ]);
+      } else {
+        await api.post("/super/stores", payload);
+        toast.success("Store created");
+        // Log creation activity
+        setLogs(prev => [
+          { id: Date.now(), time: "Just now", type: "success", text: `New tenant store '${payload.name}' created by super@vendora.com` },
+          ...prev
+        ]);
+      }
+      setOpen(false); refresh();
     } catch (e) { toast.error(e.response?.data?.detail || "Failed"); }
   };
 
   const del = async (id) => { 
     if (!window.confirm("Delete this store?")) return;
+    const targetStore = stores.find(s => s.id === id);
     await api.delete(`/super/stores/${id}`); 
-    toast.success("Deleted"); 
+    toast.success("Deleted");
+    setLogs(prev => [
+      { id: Date.now(), time: "Just now", type: "danger", text: `Store '${targetStore?.name || id}' deleted from platform` },
+      ...prev
+    ]);
     refresh(); 
+  };
+
+  const toggleConfig = (key, label) => {
+    setConfig(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      toast.success(`${label} turned ${next[key] ? "ON" : "OFF"}`);
+      setLogs(logsPrev => [
+        { id: Date.now(), time: "Just now", type: "info", text: `Global toggle '${label}' changed to ${next[key] ? "ENABLED" : "DISABLED"}` },
+        ...logsPrev
+      ]);
+      return next;
+    });
   };
 
   if (!user) return <Navigate to="/login" />;
@@ -64,22 +136,57 @@ export default function SuperAdmin() {
       </span>
     )},
     { key: "domain", header: "Domain", sortable: true, render: (r) => (
-      <span className="font-mono text-stone-600">{r.domain || "—"}</span>
+      <span className="font-mono text-stone-600 text-xs">{r.domain || "—"}</span>
     )},
     { key: "plan", header: "Plan", sortable: true, render: (r) => (
-      <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider border border-emerald-200">
-        {r.plan}
-      </span>
+      <Select value={r.plan || "starter"} onValueChange={async (v) => {
+        try {
+          await api.put(`/super/stores/${r.id}`, { plan: v });
+          toast.success("Store plan upgraded");
+          setLogs(prev => [
+            { id: Date.now(), time: "Just now", type: "success", text: `Store '${r.name}' plan updated to ${v.toUpperCase()}` },
+            ...prev
+          ]);
+          refresh();
+        } catch { toast.error("Failed to update plan"); }
+      }}>
+        <SelectTrigger className="h-7 w-28 text-[11px] font-bold uppercase"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="starter" className="text-xs uppercase">Starter</SelectItem>
+          <SelectItem value="growth" className="text-xs uppercase">Growth</SelectItem>
+          <SelectItem value="enterprise" className="text-xs uppercase">Enterprise</SelectItem>
+        </SelectContent>
+      </Select>
     )},
     { key: "status", header: "Status", sortable: true, render: (r) => (
-      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${r.status === "active" ? "bg-emerald-100 text-emerald-850" : "bg-amber-100 text-amber-850"}`}>
-        {r.status || "active"}
-      </span>
+      <Select value={r.status || "active"} onValueChange={async (v) => {
+        try {
+          await api.put(`/super/stores/${r.id}`, { status: v });
+          toast.success("Store status updated");
+          setLogs(prev => [
+            { id: Date.now(), time: "Just now", type: "info", text: `Store '${r.name}' status set to ${v.toUpperCase()}` },
+            ...prev
+          ]);
+          refresh();
+        } catch { toast.error("Failed to update status"); }
+      }}>
+        <SelectTrigger className="h-7 w-24 text-[11px] font-bold uppercase"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="active" className="text-xs uppercase">Active</SelectItem>
+          <SelectItem value="draft" className="text-xs uppercase">Draft</SelectItem>
+          <SelectItem value="inactive" className="text-xs uppercase">Inactive</SelectItem>
+        </SelectContent>
+      </Select>
     )},
     { key: "actions", header: "", render: (r) => (
-      <button data-testid={`del-store-${r.id}`} onClick={() => del(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#991B1B] transition-colors">
-        <Trash2 className="w-4 h-4" />
-      </button>
+      <div className="flex gap-1 justify-end">
+        <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600 transition-colors">
+          <Pencil className="w-4 h-4" />
+        </button>
+        <button data-testid={`del-store-${r.id}`} onClick={() => del(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#991B1B] transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
     )}
   ];
 
@@ -166,7 +273,7 @@ export default function SuperAdmin() {
               <h1 className="font-display font-black text-3xl tracking-tight text-[#0F2A22]">Super Admin Dashboard</h1>
               <p className="text-sm text-[#78716C]">Monitor, create and delete multi-tenant store verticals on the platform.</p>
             </div>
-            <Button data-testid="super-new-store-btn" onClick={() => setOpen(true)} className="rounded-full bg-[#1B4332] hover:bg-[#2D6A4F] self-start sm:self-auto"><Plus className="w-4 h-4 mr-1" />New Store</Button>
+            <Button data-testid="super-new-store-btn" onClick={openNew} className="rounded-full bg-[#1B4332] hover:bg-[#2D6A4F] self-start sm:self-auto"><Plus className="w-4 h-4 mr-1" />New Store</Button>
           </div>
 
           {/* Stats grid */}
@@ -200,13 +307,73 @@ export default function SuperAdmin() {
               pageSize={10}
             />
           </div>
+
+          {/* New Bottom Feature Panel Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Global Settings Control Panel */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Settings2 className="w-5 h-5 text-[#1B4332]" />
+                <h2 className="font-display font-bold text-lg text-[#0F2A22]">Global Config Rules</h2>
+              </div>
+              <div className="space-y-4 pt-2">
+                {[
+                  { key: "selfReg", label: "Allow Seller Registrations", desc: "Toggle if new stores can register via the registration link." },
+                  { key: "requireSsl", label: "Enforce HTTPS for custom domains", desc: "Forces SSL redirect for customized domains." },
+                  { key: "maintMode", label: "Global Maintenance Mode", desc: "Redirects all storefronts to under-construction page." },
+                  { key: "orderNotif", label: "Email Notifications for new orders", desc: "Sends immediate notifications to tenant owners." }
+                ].map(item => (
+                  <div key={item.key} className="flex items-start justify-between gap-4 py-2 border-b border-stone-155 last:border-0">
+                    <div>
+                      <div className="text-sm font-semibold text-stone-850">{item.label}</div>
+                      <div className="text-xs text-stone-500">{item.desc}</div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={config[item.key]} 
+                        onChange={() => toggleConfig(item.key, item.label)} 
+                        className="sr-only peer" 
+                      />
+                      <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1B4332]"></div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Platform Audit Logs */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-[#1B4332]" />
+                <h2 className="font-display font-bold text-lg text-[#0F2A22]">Platform Audit Logs</h2>
+              </div>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 pt-2">
+                {logs.map(log => (
+                  <div key={log.id} className="text-xs flex items-start gap-3 p-2.5 rounded-lg bg-stone-50 hover:bg-stone-100/70 transition-colors">
+                    <span className="font-mono text-stone-400 shrink-0 mt-0.5">{log.time}</span>
+                    <div className="flex-1">
+                      <span className={`inline-block w-2 h-2 rounded-full mr-2 shrink-0 ${
+                        log.type === "success" ? "bg-emerald-550" : 
+                        log.type === "warning" ? "bg-amber-500" : 
+                        log.type === "danger" ? "bg-red-500" : "bg-blue-500"
+                      }`} />
+                      <span className="text-stone-700">{log.text}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </main>
       </div>
 
-      {/* New Store Dialog */}
+      {/* New / Edit Store Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Create Store (Tenant)</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? "Edit Store Details" : "Create Store (Tenant)"}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
             <Input data-testid="store-name" placeholder="Store name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <Input data-testid="store-domain" placeholder="Domain" value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} />
@@ -218,10 +385,15 @@ export default function SuperAdmin() {
               <SelectTrigger data-testid="store-plan"><SelectValue /></SelectTrigger>
               <SelectContent>{["starter", "growth", "enterprise"].map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
             </Select>
+            <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{["active", "draft", "inactive"].map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            </Select>
+            <Input placeholder="Theme" value={form.theme} onChange={(e) => setForm({ ...form, theme: e.target.value })} />
             <Input data-testid="store-owner-email" placeholder="Owner email" className="col-span-1 sm:col-span-2" value={form.owner_email} onChange={(e) => setForm({ ...form, owner_email: e.target.value })} />
           </div>
           <DialogFooter>
-            <Button data-testid="store-save-btn" onClick={save} className="rounded-full bg-[#1B4332] hover:bg-[#2D6A4F]">Create Store</Button>
+            <Button data-testid="store-save-btn" onClick={save} className="rounded-full bg-[#1B4332] hover:bg-[#2D6A4F]">{editing ? "Save Changes" : "Create Store"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
